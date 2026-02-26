@@ -1,0 +1,7 @@
+1:1 IDENTIFIER "x"
+2:1 IDENTIFIER "counter1"
+3:1 IDENTIFIER "_private"
+4:1 IDENTIFIER "very_long_identifier_that_is_still_valid"
+5:1 IDENTIFIER "camelCase"
+6:1 IDENTIFIER "PascalCase"
+6:11 END_OF_FILE ""

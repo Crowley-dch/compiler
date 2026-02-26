@@ -1,0 +1,11 @@
+1:1 ERROR "@"
+1:2 IDENTIFIER "invalid"
+2:1 ERROR "$"
+2:2 IDENTIFIER "symbol"
+3:1 ERROR "#"
+3:2 IDENTIFIER "comment"
+4:1 FLOAT_LITERAL "123.456" 123.456
+4:8 ERROR "."
+4:9 INT_LITERAL "789" 789
+5:1 ERROR "unterminated"
+7:1 END_OF_FILE ""

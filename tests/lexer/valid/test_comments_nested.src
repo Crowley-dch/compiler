@@ -1,0 +1,7 @@
+// single line
+int x = 42; // end of line
+/* multi line */
+/* multi
+   line
+   comment */
+/* nested /* not supported but should be handled */ */

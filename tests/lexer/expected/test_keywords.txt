@@ -1,0 +1,14 @@
+1:1 KW_IF "if"
+1:4 KW_ELSE "else"
+1:9 KW_WHILE "while"
+1:15 KW_FOR "for"
+1:19 KW_INT "int"
+1:23 KW_FLOAT "float"
+1:29 KW_BOOL "bool"
+2:1 KW_RETURN "return"
+2:8 KW_TRUE "true" True
+2:13 KW_FALSE "false" False
+2:19 KW_VOID "void"
+2:24 KW_STRUCT "struct"
+2:31 KW_FN "fn"
+2:33 END_OF_FILE ""

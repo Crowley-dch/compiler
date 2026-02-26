@@ -1,0 +1,9 @@
+fn main() {
+    int counter = 42;
+    float pi = 3.14;
+    bool flag = true;
+    // это комментарий
+    if (counter > 10) {
+        return counter;
+    }
+}

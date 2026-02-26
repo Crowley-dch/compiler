@@ -1,0 +1,5 @@
+1:1 STRING_LITERAL "hello" hello
+1:9 STRING_LITERAL "world" world
+1:17 STRING_LITERAL "" 
+1:20 STRING_LITERAL "test with spaces" test with spaces
+1:38 END_OF_FILE ""
