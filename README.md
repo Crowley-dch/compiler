@@ -49,4 +49,43 @@ compiler-project/
 
 ---
 
+## Установка и запуск
 
+### Требования
+- Python 3.8 или выше
+- pip
+
+### Установка
+
+```bash
+# Клонировать репозиторий
+git clone <repository-url>
+cd compiler-project
+```
+```bash
+# Создать виртуальное окружение
+python -m venv .venv
+.venv\Scripts\activate  # для Windows
+```
+```bash
+# Установить зависимости
+pip install -r requirements.txt
+```
+```bash
+# Установить проект в режиме разработки
+pip install -e .
+```
+
+## Лексический анализ
+```bash
+# Запуск лексера
+compiler lex --input examples/hello.src
+```
+```bash
+# Или через python -m
+python -m src.main lex --input examples/hello.src
+```
+```bash
+# Сохранить токены в файл
+compiler lex --input examples/hello.src --output tokens.txt
+```
