@@ -41,6 +41,7 @@ class TokenType(Enum):
     MINUS_ASSIGN = auto()
     STAR_ASSIGN = auto()
     SLASH_ASSIGN = auto()
+    ARROW = auto()
 
     LPAREN = auto()
     RPAREN = auto()
@@ -104,6 +105,7 @@ DOUBLE_CHAR_TOKENS_MAP = {
     '-=': TokenType.MINUS_ASSIGN,
     '*=': TokenType.STAR_ASSIGN,
     '/=': TokenType.SLASH_ASSIGN,
+    '->': TokenType.ARROW,
 }
 
 SINGLE_CHAR_OPERATORS = set(SINGLE_CHAR_TOKENS_MAP.keys())

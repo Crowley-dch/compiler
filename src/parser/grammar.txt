@@ -1,0 +1,91 @@
+
+Program ::= { Declaration }
+
+Declaration   ::= FunctionDecl | StructDecl | VarDecl
+FunctionDecl  ::= "fn" Identifier "(" [ Parameters ] ")" [ "->" Type ] Block
+StructDecl    ::= "struct" Identifier "{" { VarDecl } "}"
+VarDecl       ::= Type Identifier [ "=" Expression ] ";"
+
+Parameters    ::= Parameter { "," Parameter }
+Parameter     ::= Type Identifier
+
+Type ::= "int" | "float" | "bool" | "void" | Identifier
+
+Statement     ::= Block
+                | IfStmt
+                | WhileStmt
+                | ForStmt
+                | ReturnStmt
+                | ExprStmt
+                | VarDecl
+                | ";"
+
+Block         ::= "{" { Statement } "}"
+
+IfStmt        ::= "if" "(" Expression ")" Statement [ "else" Statement ]
+
+WhileStmt     ::= "while" "(" Expression ")" Statement
+
+ForStmt       ::= "for" "(" [ ExprStmt ] ";" [ Expression ] ";" [ Expression ] ")" Statement
+
+ReturnStmt    ::= "return" [ Expression ] ";"
+
+ExprStmt      ::= Expression ";"
+
+Expression    ::= Assignment
+
+Assignment    ::= LogicalOr { ("=" | "+=" | "-=" | "*=" | "/=") Assignment }
+
+LogicalOr     ::= LogicalAnd { "||" LogicalAnd }
+
+LogicalAnd    ::= Equality { "&&" Equality }
+
+Equality      ::= Relational { ("==" | "!=") Relational }
+
+Relational    ::= Additive { ("<" | "<=" | ">" | ">=") Additive }
+
+Additive      ::= Multiplicative { ("+" | "-") Multiplicative }
+
+Multiplicative ::= Unary { ("*" | "/" | "%") Unary }
+
+Unary         ::= ("-" | "!") Unary | Primary
+
+Primary       ::= Literal
+                | Identifier
+                | "(" Expression ")"
+                | Call
+
+Call          ::= Identifier "(" [ Arguments ] ")"
+
+Arguments     ::= Expression { "," Expression }
+
+Literal       ::= Integer
+                | Float
+                | String
+                | Boolean
+                | "null"
+
+Integer       ::= digit { digit }
+Float         ::= digit { digit } "." digit { digit }
+String        ::= '"' { character } '"'
+Boolean       ::= "true" | "false"
+
+Identifier    ::= letter { letter | digit | "_" }
+
+
+
+// Приоритеты операторов (от высшего к низшему)
+// 1. Первичные: literal, identifier, ( ), call
+// 2. Унарные: - !
+// 3. Мультипликативные: * / %
+// 4. Аддитивные: + -
+// 5. Сравнения: < <= > >=
+// 6. Равенства: == !=
+// 7. Логическое И: &&
+// 8. Логическое ИЛИ: ||
+// 9. Присваивание: = += -= *= /=
+
+// Ассоциативность
+// Левоассоциативные: + - * / % && || (и все бинарные, кроме присваивания)
+// Правоассоциативные: = += -= *= /= (присваивание)
+// Неассоциативные: == != < <= > >= (нельзя писать a < b < c)

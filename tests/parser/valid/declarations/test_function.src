@@ -1,0 +1,32 @@
+fn main() -> void {
+    int result = add(5, 3);
+    return;
+}
+
+fn add(a int, b int) -> int {
+    return a + b;
+}
+
+fn empty() {
+    return;
+}
+
+fn complex(x int, y float, z bool) -> float {
+    return x * y;
+}
+
+fn max(a int, b int) -> int {
+    if (a > b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+fn recursive(n int) -> int {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * recursive(n - 1);
+    }
+}

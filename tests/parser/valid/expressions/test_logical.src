@@ -1,0 +1,6 @@
+fn main() -> void {
+    bool a = true && false;
+    bool b = true || false;
+    bool c = !true;
+    bool d = (1 < 2) && (3 > 4);
+}

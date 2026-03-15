@@ -1,0 +1,8 @@
+fn foo() -> void {
+    return;
+}
+
+fn main() -> void {
+    foo();
+    return;
+}

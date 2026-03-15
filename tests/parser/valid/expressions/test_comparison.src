@@ -1,0 +1,8 @@
+fn main() -> void {
+    int x = 5;
+    int y = 10;
+    bool b1 = 1 < 2;
+    bool b2 = 3 >= 5;
+    bool b3 = 10 == 10;
+    bool b4 = 5 != 6;
+}

@@ -1,11 +1,13 @@
 from typing import Optional, List
-from lexer.token import Token
-from lexer.token_types import (
-    TokenType, KEYWORDS_MAP, SINGLE_CHAR_TOKENS_MAP,
-    DOUBLE_CHAR_TOKENS_MAP, DOUBLE_CHAR_OPERATORS
+from src.lexer.token import Token
+from src.lexer.token_types import (
+    TokenType,
+    KEYWORDS_MAP,
+    SINGLE_CHAR_TOKENS_MAP,
+    DOUBLE_CHAR_TOKENS_MAP,
+    DOUBLE_CHAR_OPERATORS
 )
-from utils.error_handler import ErrorHandler
-
+from src.utils.error_handler import ErrorHandler
 class Scanner:
     def __init__(self, source: str, error_handler: Optional[ErrorHandler] = None):
         self.source = source

@@ -1,0 +1,30 @@
+int global_x = 42;
+float global_pi = 3.14;
+bool global_flag = true;
+string global_name = "John";
+Point global_p;
+
+struct Point {
+    int x;
+    int y;
+}
+
+struct Person {
+    string name;
+    int age;
+    float salary;
+}
+
+fn main() -> void {
+    int local_x = 10;
+    float local_pi = 3.14159;
+    bool local_flag = false;
+    string local_name = "Jane";
+    Point local_p = { x = 1; y = 2; };
+    Person john = { name = "John"; age = 30; salary = 50000.0; };
+
+    int a = 1, b = 2, c = 3;
+    int d, e, f;
+
+    return;
+}

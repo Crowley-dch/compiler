@@ -1,0 +1,26 @@
+struct Point {
+    int x;
+    int y;
+}
+
+struct Empty {
+}
+
+struct Person {
+    string name;
+    int age;
+    float salary;
+}
+
+struct Complex {
+    int id;
+    Point pos;
+    bool active;
+}
+
+fn main() -> void {
+    Point p;
+    Person john;
+    Complex c;
+    return;
+}

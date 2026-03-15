@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Optional
-from lexer.token_types import TokenType
-
+from src.lexer import TokenType
 @dataclass
 class Token:
     type: TokenType
