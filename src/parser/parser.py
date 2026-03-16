@@ -15,7 +15,6 @@ from src.parser.ast import (
 
 
 class ParseError(Exception):
-    """Исключение для ошибок парсинга."""
     def __init__(self, message: str, token: Token):
         self.message = message
         self.token = token
@@ -23,50 +22,37 @@ class ParseError(Exception):
 
 
 class Parser:
-    """
-    Основной класс парсера.
-    Принимает список токенов и строит AST.
-    """
 
     def __init__(self, tokens: List[Token], error_handler: Optional[ErrorHandler] = None):
         self.tokens = tokens
         self.current = 0
         self.error_handler = error_handler or ErrorHandler()
 
-    # === Вспомогательные методы ===
 
     def peek(self) -> Token:
-        """Возвращает текущий токен без продвижения."""
         if self.is_at_end():
             return self.tokens[-1]
         return self.tokens[self.current]
 
     def previous(self) -> Token:
-        """Возвращает предыдущий токен."""
         return self.tokens[self.current - 1]
 
     def is_at_end(self) -> bool:
-        """Проверяет, достигнут ли конец токенов."""
         return self.current >= len(self.tokens) or \
                self.tokens[self.current].type == TokenType.END_OF_FILE
 
     def advance(self) -> Token:
-        """Переходит к следующему токену и возвращает текущий."""
         if not self.is_at_end():
             self.current += 1
         return self.previous()
 
     def check(self, token_type: TokenType) -> bool:
-        """Проверяет, является ли текущий токен заданного типа."""
         if self.is_at_end():
             return False
         return self.peek().type == token_type
 
     def match(self, *types: TokenType) -> bool:
-        """
-        Проверяет, является ли текущий токен одним из заданных типов.
-        Если да, продвигается к следующему токену.
-        """
+
         for token_type in types:
             if self.check(token_type):
                 self.advance()
@@ -74,9 +60,7 @@ class Parser:
         return False
 
     def consume(self, token_type: TokenType, message: str) -> Token:
-        """
-        Потребляет токен ожидаемого типа или сообщает об ошибке.
-        """
+
         if self.check(token_type):
             return self.advance()
 
@@ -88,10 +72,7 @@ class Parser:
         return current
 
     def synchronize(self) -> None:
-        """
-        Синхронизация после ошибки.
-        Пропускает токены до следующей точки синхронизации.
-        """
+
         self.advance()
 
         while not self.is_at_end():
@@ -108,17 +89,12 @@ class Parser:
 
             self.advance()
 
-    # === Основной метод парсинга ===
 
     def parse(self) -> ProgramNode:
-        """
-        Главный метод парсинга.
-        Возвращает корень AST - ProgramNode.
-        """
+
         declarations = []
 
         while not self.is_at_end():
-            # Пропускаем END_OF_FILE
             if self.peek().type == TokenType.END_OF_FILE:
                 break
 
@@ -126,16 +102,12 @@ class Parser:
             if decl:
                 declarations.append(decl)
             else:
-                # Если объявление не распознано, продвигаемся вперед
                 self.advance()
 
         return ProgramNode(declarations)
 
-    # === Объявления (верхний уровень) ===
 
     def parse_declaration(self) -> Optional[DeclarationNode]:
-        """Парсит объявление на верхнем уровне."""
-        # Сначала проверяем конец файла
         if self.is_at_end() or self.peek().type == TokenType.END_OF_FILE:
             return None
 
@@ -160,25 +132,19 @@ class Parser:
             )
             return None
     def parse_function_decl(self) -> FunctionDeclNode:
-        """Парсит объявление функции."""
-        # Потребляем 'fn'
         fn_token = self.advance()
 
-        # Имя функции
         name_token = self.consume(TokenType.IDENTIFIER, "Expected function name")
         name = name_token.lexeme
 
-        # Параметры
         self.consume(TokenType.LPAREN, "Expected '(' after function name")
         parameters = self.parse_parameters()
         self.consume(TokenType.RPAREN, "Expected ')' after parameters")
 
-        # Возвращаемый тип
         return_type = TypeNode("void", fn_token.line, fn_token.column)
         if self.match(TokenType.ARROW):
             return_type = self.parse_type()
 
-        # Тело функции
         body = self.parse_block()
 
         return FunctionDeclNode(
@@ -191,25 +157,19 @@ class Parser:
         )
 
     def parse_struct_decl(self) -> StructDeclNode:
-        """Парсит объявление структуры."""
-        # Потребляем 'struct'
         struct_token = self.advance()
 
-        # Имя структуры
         name_token = self.consume(TokenType.IDENTIFIER, "Expected struct name")
         name = name_token.lexeme
 
-        # Открывающая скобка
         self.consume(TokenType.LBRACE, "Expected '{{' after struct name")
 
-        # Поля структуры
         fields = []
         while not self.check(TokenType.RBRACE) and not self.is_at_end():
             field = self.parse_struct_field()
             if field:
                 fields.append(field)
 
-        # Закрывающая скобка
         self.consume(TokenType.RBRACE, "Expected '}}' after struct fields")
 
         return StructDeclNode(
@@ -220,7 +180,6 @@ class Parser:
         )
 
     def parse_struct_field(self) -> Optional[VarDeclStmtNode]:
-        """Парсит поле структуры."""
         type_node = self.parse_type()
         if not type_node:
             return None
@@ -239,7 +198,6 @@ class Parser:
         )
 
     def parse_global_var_decl(self) -> Optional[VarDeclStmtNode]:
-        """Парсит глобальное объявление переменной."""
         type_node = self.parse_type()
         if not type_node:
             return None
@@ -262,18 +220,15 @@ class Parser:
         )
 
     def parse_parameters(self) -> List[ParamNode]:
-        """Парсит список параметров функции."""
         parameters = []
 
         if self.check(TokenType.RPAREN):
             return parameters
 
-        # Первый параметр
         param = self.parse_parameter()
         if param:
             parameters.append(param)
 
-        # Остальные параметры
         while self.match(TokenType.COMMA):
             param = self.parse_parameter()
             if param:
@@ -282,7 +237,6 @@ class Parser:
         return parameters
 
     def parse_parameter(self) -> Optional[ParamNode]:
-        """Парсит один параметр функции."""
         type_node = self.parse_type()
         if not type_node:
             return None
@@ -298,7 +252,6 @@ class Parser:
         )
 
     def parse_type(self) -> Optional[TypeNode]:
-        """Парсит тип."""
         token = self.peek()
 
         if token.type == TokenType.KW_INT:
@@ -323,10 +276,8 @@ class Parser:
             )
             return None
 
-    # === Инструкции (внутри функций) ===
 
     def parse_statement(self) -> Optional[StatementNode]:
-        """Парсит инструкцию внутри функции."""
         token = self.peek()
 
         if token.type == TokenType.LBRACE:
@@ -349,7 +300,6 @@ class Parser:
             return self.parse_expression_statement()
 
     def parse_block(self) -> BlockStmtNode:
-        """Парсит блок инструкций."""
         # Потребляем '{'
         brace_token = self.advance()
         statements = []
@@ -368,7 +318,6 @@ class Parser:
         )
 
     def parse_local_var_decl(self) -> Optional[VarDeclStmtNode]:
-        """Парсит объявление переменной внутри функции."""
         type_node = self.parse_type()
         if not type_node:
             return None
@@ -391,8 +340,6 @@ class Parser:
         )
 
     def parse_if_statement(self) -> IfStmtNode:
-        """Парсит условную инструкцию."""
-        # Потребляем 'if'
         if_token = self.advance()
 
         self.consume(TokenType.LPAREN, "Expected '(' after 'if'")
@@ -416,8 +363,7 @@ class Parser:
         )
 
     def parse_while_statement(self) -> WhileStmtNode:
-        """Парсит цикл while."""
-        # Потребляем 'while'
+
         while_token = self.advance()
 
         self.consume(TokenType.LPAREN, "Expected '(' after 'while'")
@@ -436,13 +382,12 @@ class Parser:
         )
 
     def parse_for_statement(self) -> ForStmtNode:
-        """Парсит цикл for."""
-        # Потребляем 'for'
+
         for_token = self.advance()
 
         self.consume(TokenType.LPAREN, "Expected '(' after 'for'")
 
-        # Инициализация
+
         init = None
         if not self.check(TokenType.SEMICOLON):
             if self.check(TokenType.KW_INT) or self.check(TokenType.KW_FLOAT) or \
@@ -453,13 +398,11 @@ class Parser:
         else:
             self.consume(TokenType.SEMICOLON, "Expected ';'")
 
-        # Условие
         condition = None
         if not self.check(TokenType.SEMICOLON):
             condition = self.parse_expression()
         self.consume(TokenType.SEMICOLON, "Expected ';' after loop condition")
 
-        # Обновление
         update = None
         if not self.check(TokenType.RPAREN):
             update = self.parse_expression()
@@ -480,8 +423,7 @@ class Parser:
         )
 
     def parse_return_statement(self) -> ReturnStmtNode:
-        """Парсит инструкцию return."""
-        # Потребляем 'return'
+
         return_token = self.advance()
 
         value = None
@@ -497,19 +439,16 @@ class Parser:
         )
 
     def parse_expression_statement(self) -> ExprStmtNode:
-        """Парсит инструкцию-выражение."""
         expr = self.parse_expression()
         self.consume(TokenType.SEMICOLON, "Expected ';' after expression")
         return ExprStmtNode(expression=expr, line=expr.line, column=expr.column)
 
-    # === Выражения ===
 
     def parse_expression(self) -> ExpressionNode:
-        """Парсит выражение."""
+
         return self.parse_assignment()
 
     def parse_assignment(self) -> ExpressionNode:
-        """Парсит присваивание."""
         expr = self.parse_logical_or()
 
         if self.match(TokenType.ASSIGN, TokenType.PLUS_ASSIGN,
@@ -528,7 +467,6 @@ class Parser:
         return expr
 
     def parse_logical_or(self) -> ExpressionNode:
-        """Парсит логическое ИЛИ."""
         expr = self.parse_logical_and()
 
         while self.match(TokenType.OR):
@@ -545,7 +483,6 @@ class Parser:
         return expr
 
     def parse_logical_and(self) -> ExpressionNode:
-        """Парсит логическое И."""
         expr = self.parse_equality()
 
         while self.match(TokenType.AND):
@@ -562,7 +499,6 @@ class Parser:
         return expr
 
     def parse_equality(self) -> ExpressionNode:
-        """Парсит равенство."""
         expr = self.parse_relational()
 
         while self.match(TokenType.EQ, TokenType.NEQ):
@@ -596,7 +532,6 @@ class Parser:
         return expr
 
     def parse_additive(self) -> ExpressionNode:
-        """Парсит сложение/вычитание."""
         expr = self.parse_multiplicative()
 
         while self.match(TokenType.PLUS, TokenType.MINUS):
@@ -613,7 +548,6 @@ class Parser:
         return expr
 
     def parse_multiplicative(self) -> ExpressionNode:
-        """Парсит умножение/деление."""
         expr = self.parse_unary()
 
         while self.match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT):
@@ -630,7 +564,6 @@ class Parser:
         return expr
 
     def parse_unary(self) -> ExpressionNode:
-        """Парсит унарные операторы."""
         if self.match(TokenType.MINUS, TokenType.NOT):
             operator = self.previous().lexeme
             expr = self.parse_unary()
@@ -644,7 +577,6 @@ class Parser:
         return self.parse_call()
 
     def parse_call(self) -> ExpressionNode:
-        """Парсит вызов функции."""
         expr = self.parse_primary()
 
         while self.match(TokenType.LPAREN):
@@ -665,7 +597,6 @@ class Parser:
         return expr
 
     def parse_primary(self) -> ExpressionNode:
-        """Парсит первичные выражения."""
         token = self.peek()
 
         if self.match(TokenType.INT_LITERAL):
