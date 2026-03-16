@@ -1,0 +1,3 @@
+fn foo(,) -> void {}
+fn bar(x int,, y int) -> void {}
+fn baz(,) {}

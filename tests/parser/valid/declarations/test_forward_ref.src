@@ -1,0 +1,19 @@
+struct Node {
+    int value;
+    Node* next;
+}
+
+fn factorial(n int) -> int;
+
+fn main() -> void {
+    int x = factorial(5);
+    return;
+}
+
+fn factorial(n int) -> int {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}

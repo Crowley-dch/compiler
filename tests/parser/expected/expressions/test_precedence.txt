@@ -1,0 +1,10 @@
+Program [line 0]:
+  FunctionDecl: main() -> void [line 1]:
+    Block [line 1]:
+      VarDecl: int x = 5 [line 2]
+      VarDecl: int y = 3 [line 3]
+      VarDecl: int z = 2 [line 4]
+      VarDecl: bool a = True [line 5]
+      VarDecl: bool b = False [line 6]
+      VarDecl: int result1 = (1 + (2 * 3)) [line 7]
+      VarDecl: bool result2 = (True || (False && True)) [line 8]

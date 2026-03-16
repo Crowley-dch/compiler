@@ -1,0 +1,18 @@
+int global = 100;
+float constant = 3.14159;
+bool debug = true;
+
+struct Data {
+    int value;
+    string name;
+}
+
+fn process(d Data) -> Data {
+    return d;
+}
+
+fn main() -> void {
+    Data d = { value = 42; name = "test"; };
+    Data result = process(d);
+    return;
+}

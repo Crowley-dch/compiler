@@ -1,0 +1,10 @@
+Program [line 0]:
+  FunctionDecl: main() -> void [line 1]:
+    Block [line 1]:
+      Block [line 2]:
+        VarDecl: int x = 10 [line 3]
+        VarDecl: int y = 20 [line 4]
+      Block [line 6]:
+        VarDecl: int a = 1 [line 7]
+        Block [line 8]:
+          VarDecl: int b = 2 [line 9]

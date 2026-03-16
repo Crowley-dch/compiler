@@ -1,0 +1,46 @@
+fn abs(x int) -> int {
+    if (x < 0) {
+        return -x;
+    } else {
+        return x;
+    }
+}
+
+fn max(a int, b int) -> int {
+    if (a > b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+fn min(a int, b int) -> int {
+    if (a < b) {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+fn clamp(value int, minVal int, maxVal int) -> int {
+    if (value < minVal) {
+        return minVal;
+    } else if (value > maxVal) {
+        return maxVal;
+    } else {
+        return value;
+    }
+}
+
+fn main() -> void {
+    int x = -5;
+    int y = 10;
+    int z = 7;
+
+    int a = abs(x);
+    int b = max(y, z);
+    int c = min(y, z);
+    int d = clamp(15, 0, 10);
+
+    return a + b + c + d;
+}

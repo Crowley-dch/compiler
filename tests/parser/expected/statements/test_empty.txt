@@ -1,0 +1,15 @@
+Program [line 0]:
+  FunctionDecl: main() -> void [line 1]:
+    Block [line 1]:
+      Block [line 3]:
+      IfStmt [line 4]:
+        Condition:
+          True
+        Then:
+          Block [line 4]:
+      WhileStmt [line 5]:
+        Condition:
+          False
+        Body:
+          Block [line 5]:
+      Block [line 6]:

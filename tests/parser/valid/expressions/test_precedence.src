@@ -1,0 +1,9 @@
+fn main() -> void {
+    int x = 5;
+    int y = 3;
+    int z = 2;
+    bool a = true;
+    bool b = false;
+    int result1 = 1 + 2 * 3;
+    bool result2 = true || false && true;
+}

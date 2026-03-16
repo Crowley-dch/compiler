@@ -1,0 +1,36 @@
+struct Point {
+    int x;
+    int y;
+}
+
+struct Rectangle {
+    Point topLeft;
+    Point bottomRight;
+}
+
+fn distance(p1 Point, p2 Point) -> int {
+    int dx = p2.x - p1.x;
+    int dy = p2.y - p1.y;
+    return dx * dx + dy * dy;
+}
+
+fn area(rect Rectangle) -> int {
+    int width = rect.bottomRight.x - rect.topLeft.x;
+    int height = rect.bottomRight.y - rect.topLeft.y;
+    return width * height;
+}
+
+fn main() -> void {
+    Point p1 = { x = 0; y = 0; };
+    Point p2 = { x = 10; y = 10; };
+    Rectangle rect = { topLeft = p1; bottomRight = p2; };
+
+    int dist = distance(p1, p2);
+    int a = area(rect);
+
+    if (dist > a) {
+        return dist;
+    } else {
+        return a;
+    }
+}

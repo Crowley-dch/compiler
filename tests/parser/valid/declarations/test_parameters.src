@@ -1,0 +1,27 @@
+fn foo() -> void {
+    return;
+}
+
+fn bar(x int) -> void {
+    return;
+}
+
+fn baz(a int, b float, c bool) -> int {
+    return 0;
+}
+
+fn complex(a int, b int, c int, d float, e bool, f string) -> Point {
+    Point p;
+    return p;
+}
+
+fn default_params(x int = 10, y float = 3.14) -> void {
+    return;
+}
+
+fn main() -> void {
+    foo();
+    bar(42);
+    baz(1, 3.14, true);
+    return;
+}

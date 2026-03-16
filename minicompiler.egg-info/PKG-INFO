@@ -1,0 +1,46 @@
+Metadata-Version: 2.4
+Name: minicompiler
+Version: 0.2.0
+Summary: MiniCompiler 
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Dynamic: requires-python
+
+# compiler
+
+# MCompiler - Спринт 1: Лексический анализатор
+
+## 📋 Описание проекта
+Реализован лексический анализатор, который преобразует исходный код в последовательность токенов с полной информацией о позиции и значениях литералов.
+
+---
+
+## 📁 Структура проекта
+```text
+compiler
+├── src/ # Исходный код
+│ ├── lexer/ # Лексический анализатор
+│ │ ├── scanner.py # Основной сканер
+│ │ ├── token.py # Структура токена
+│ │ └── token_types.py # Типы токенов (Enum)
+│ └── utils/ # Вспомогательные модули
+│ └── error_handler.py # Обработка ошибок
+├── tests/ # Тесты
+│ ├── lexer/
+│ │ ├── valid/ # Корректные тесты 
+│ │ ├── invalid/ # Тесты с ошибками 
+│ │ └── expected/ # Ожидаемые результаты
+│ └── test_runner.py # Автоматический запуск тестов
+├── examples/ # Примеры программ
+├── docs/ # Документация
+│ └── language_spec.md # Спецификация языка
+├── README.md
+├── pyproject.toml
+├── setup.py
+└── requirements.txt
+
+```
+
+---
+
+

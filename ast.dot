@@ -1,0 +1,28 @@
+digraph AST {
+  node [shape=box, style=filled, fillcolor=lightblue];
+  node0 [label="ProgramNode"];
+  node1 [label="FunctionDeclNode\nmain"];
+  node2 [label="BlockStmtNode"];
+  node3 [label="VarDeclStmtNode\ncounter"];
+  node2 -> node3;
+  node4 [label="VarDeclStmtNode\npi"];
+  node2 -> node4;
+  node5 [label="VarDeclStmtNode\nflag"];
+  node2 -> node5;
+  node6 [label="IfStmtNode"];
+  node7 [label="BlockStmtNode"];
+  node8 [label="ReturnStmtNode\ncounter"];
+  node9 [label="IdentifierExprNode\ncounter"];
+  node8 -> node9 [label="value"];
+  node7 -> node8;
+  node6 -> node7 [label="then"];
+  node10 [label="BinaryExprNode\n>"];
+  node11 [label="IdentifierExprNode\ncounter"];
+  node10 -> node11 [label="left"];
+  node12 [label="LiteralExprNode\n10"];
+  node10 -> node12 [label="right"];
+  node6 -> node10 [label="cond"];
+  node2 -> node6;
+  node1 -> node2;
+  node0 -> node1;
+}

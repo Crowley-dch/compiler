@@ -1,0 +1,7 @@
+Program [line 0]:
+  FunctionDecl: main() -> void [line 1]:
+    Block [line 1]:
+      (1 + (2 * 3));
+      ((1 + 2) * 3);
+      ((-5) + 10);
+      (10 % 3);

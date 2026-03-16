@@ -1,0 +1,25 @@
+fn outer() -> int {
+    int x = 10;
+
+    fn inner1() -> int {
+        int y = 20;
+        return x + y;
+    }
+
+    fn inner2() -> int {
+        int z = 30;
+
+        fn inner3() -> int {
+            return x + z;
+        }
+
+        return inner3();
+    }
+
+    return inner1() + inner2();
+}
+
+fn main() -> void {
+    int result = outer();
+    return result;
+}

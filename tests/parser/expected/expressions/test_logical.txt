@@ -1,0 +1,7 @@
+Program [line 0]:
+  FunctionDecl: main() -> void [line 1]:
+    Block [line 1]:
+      VarDecl: bool a = (True && False) [line 2]
+      VarDecl: bool b = (True || False) [line 3]
+      VarDecl: bool c = (!True) [line 4]
+      VarDecl: bool d = ((1 < 2) && (3 > 4)) [line 5]

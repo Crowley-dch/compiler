@@ -1,0 +1,38 @@
+struct Vector {
+    int x;
+    int y;
+    int z;
+}
+
+fn add(v1 Vector, v2 Vector) -> Vector {
+    Vector result = {
+        x = v1.x + v2.x;
+        y = v1.y + v2.y;
+        z = v1.z + v2.z;
+    };
+    return result;
+}
+
+fn dot(v1 Vector, v2 Vector) -> int {
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+fn scale(v Vector, factor int) -> Vector {
+    Vector result = {
+        x = v.x * factor;
+        y = v.y * factor;
+        z = v.z * factor;
+    };
+    return result;
+}
+
+fn main() -> void {
+    Vector v1 = { x = 1; y = 2; z = 3; };
+    Vector v2 = { x = 4; y = 5; z = 6; };
+
+    Vector sum = add(v1, v2);
+    int d = dot(v1, v2);
+    Vector scaled = scale(v1, 10);
+
+    return d;
+}

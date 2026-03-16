@@ -1,0 +1,6 @@
+int global = 42;
+
+fn main() -> void {
+    int x = global;
+    return;
+}
