@@ -1,0 +1,19 @@
+Program [line 0]:
+  StructDecl: Point [line 1]:
+    VarDecl: int x [line 2]
+    VarDecl: int y [line 3]
+  StructDecl: Empty [line 6]:
+  StructDecl: Person [line 9]:
+    VarDecl: string name [line 10]
+    VarDecl: int age [line 11]
+    VarDecl: float salary [line 12]
+  StructDecl: Complex [line 15]:
+    VarDecl: int id [line 16]
+    VarDecl: Point pos [line 17]
+    VarDecl: bool active [line 18]
+  FunctionDecl: main() -> void [line 21]:
+    Block [line 21]:
+      VarDecl: Point p [line 22]
+      VarDecl: Person john [line 23]
+      VarDecl: Complex c [line 24]
+      Return [line 25]

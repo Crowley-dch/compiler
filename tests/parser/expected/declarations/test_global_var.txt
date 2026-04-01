@@ -1,0 +1,6 @@
+Program [line 0]:
+  VarDecl: int global = 42 [line 1]
+  FunctionDecl: main() -> void [line 3]:
+    Block [line 3]:
+      VarDecl: int x = global [line 4]
+      Return [line 5]

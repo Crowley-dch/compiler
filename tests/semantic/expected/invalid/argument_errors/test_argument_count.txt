@@ -1,0 +1,6 @@
+semantic error: argument count mismatch in call to 'add'
+  --> 6:12
+  |
+  = expected: 2 arguments
+  = found: 1 arguments
+  = note: function add expects 2 arguments

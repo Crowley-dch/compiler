@@ -1,0 +1,6 @@
+semantic error: duplicate declaration of variable 'x'
+  --> 3:5
+  |
+  | previous declaration at line 2
+  |
+  = note: rename the variable or remove the duplicate

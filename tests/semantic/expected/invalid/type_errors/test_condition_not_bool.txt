@@ -1,0 +1,6 @@
+semantic error: if condition must be boolean
+  --> 3:9
+  |
+  = expected: bool
+  = found: int
+  = note: use a boolean expression

@@ -1,0 +1,6 @@
+semantic error: duplicate declaration of function 'foo'
+  --> 5:1
+  |
+  | previous declaration at line 1
+  |
+  = note: rename the function or remove the duplicate

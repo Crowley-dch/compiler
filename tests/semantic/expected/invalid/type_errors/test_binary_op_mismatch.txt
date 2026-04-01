@@ -1,0 +1,12 @@
+semantic error: type mismatch in variable initialization
+  --> 3:5
+  |
+  = expected: bool
+  = found: int
+  = note: use value of type bool or convert
+semantic error: invalid operator '+' for types int and bool
+  --> 4:13
+  |
+  = expected: compatible types
+  = found: int + bool
+  = note: use compatible types for this operation

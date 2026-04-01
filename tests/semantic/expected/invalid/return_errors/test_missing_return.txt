@@ -1,0 +1,6 @@
+semantic error: function 'foo' must return a value
+  --> 1:1
+  |
+  | expected return type: int
+  |
+  = note: add a return statement with a value

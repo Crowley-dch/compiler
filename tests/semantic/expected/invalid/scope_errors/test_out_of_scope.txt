@@ -1,0 +1,4 @@
+semantic error: undeclared identifier 'x'
+  --> 5:13
+  |
+  = note: declare 'x' before using it
