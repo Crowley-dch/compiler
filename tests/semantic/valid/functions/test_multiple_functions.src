@@ -1,0 +1,19 @@
+
+fn add(int a, int b) -> int {
+    return a + b;
+}
+
+fn sub(int a, int b) -> int {
+    return a - b;
+}
+
+fn mul(int a, int b) -> int {
+    return a * b;
+}
+
+fn main() -> int {
+    int x = add(10, 5);
+    int y = sub(10, 5);
+    int z = mul(10, 5);
+    return x + y + z;
+}

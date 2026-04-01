@@ -1,0 +1,7 @@
+fn add(int a, int a) -> int {
+    return a + a;
+}
+
+fn main() -> int {
+    return add(5, 3);
+}
