@@ -1,4 +1,4 @@
-fn main() {
+fn main() -> int {
     int counter = 42;
     float pi = 3.14;
     bool flag = true;
@@ -6,4 +6,5 @@ fn main() {
     if (counter > 10) {
         return counter;
     }
+    return 0;
 }

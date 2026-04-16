@@ -4,6 +4,11 @@ import json
 from pathlib import Path
 from typing import List, Optional
 
+from ir.ir_generator import IRGenerator
+from ir.basic_block import BasicBlock
+from ir.control_flow import ControlFlowGraph
+from ir.ir_instructions import Operand, OpType, Instruction, InstType
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 from lexer.scanner import Scanner
@@ -23,7 +28,139 @@ from semantic.analyzer import SemanticAnalyzer
 
 
 class ASTPrinter:
+    def run_ir_generation(input_file: Path, output_file: Optional[Path],
+                          format: str, optimize: bool, stats: bool, verbose: bool) -> int:
 
+        try:
+            with open(input_file, 'r', encoding='utf-8') as f:
+                source = f.read()
+
+            error_handler = ErrorHandler()
+            scanner = Scanner(source, error_handler)
+            tokens = scanner.tokenize_all()
+
+            if error_handler.has_errors():
+                print("\n=== Lexical Errors ===")
+                error_handler.print_all()
+                return 1
+
+            if verbose:
+                print(f"Tokenized {len(tokens)} tokens")
+
+            parser = Parser(tokens, error_handler)
+            ast = parser.parse()
+
+            if error_handler.has_errors():
+                print("\n=== Syntax Errors ===")
+                error_handler.print_all()
+                return 1
+
+            if verbose:
+                print("\n=== Parsing completed, starting semantic analysis ===")
+
+            analyzer = SemanticAnalyzer()
+            analyzer.analyze(ast)
+
+            if analyzer.get_errors().has_errors():
+                print("\n=== Semantic Errors ===")
+                analyzer.get_errors().print_all()
+                return 1
+
+            if verbose:
+                print("\n=== Semantic analysis completed, generating IR ===")
+
+            ir_gen = IRGenerator(analyzer.get_symbol_table())
+            functions = ir_gen.generate(ast)
+
+            if format == "text":
+                output = _ir_to_text(functions)
+            elif format == "dot":
+                output = _ir_to_dot(functions)
+            elif format == "json":
+                output = _ir_to_json(functions)
+            else:
+                print(f"Unknown format: {format}")
+                return 1
+
+            if stats:
+                print(_ir_get_stats(functions))
+
+            if output_file:
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(output)
+                print(f"IR saved to {output_file}")
+            else:
+                print(output)
+
+            return 0
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return 1
+
+    def _ir_to_text(functions: dict) -> str:
+        lines = []
+        for name, cfg in functions.items():
+            lines.append(f"function {name}:")
+            for block in cfg.blocks:
+                lines.append(f"  {block.name}:")
+                for inst in block.instructions:
+                    lines.append(f"    {inst}")
+            lines.append("")
+        return "\n".join(lines)
+
+    def _ir_to_dot(functions: dict) -> str:
+        lines = []
+        for name, cfg in functions.items():
+            lines.append(f"// Function: {name}")
+            lines.append(cfg.get_dot())
+        return "\n".join(lines)
+
+    def _ir_to_json(functions: dict) -> str:
+        import json
+        result = {}
+        for name, cfg in functions.items():
+            blocks = []
+            for block in cfg.blocks:
+                blocks.append({
+                    "name": block.name,
+                    "instructions": [str(inst) for inst in block.instructions],
+                    "predecessors": [b.name for b in block.predecessors],
+                    "successors": [b.name for b in block.successors]
+                })
+            result[name] = {"blocks": blocks}
+        return json.dumps(result, indent=2)
+
+    def _ir_get_stats(functions: dict) -> str:
+        lines = ["\n=== IR Statistics ==="]
+        total_blocks = 0
+        total_insts = 0
+        inst_counts = {}
+
+        for name, cfg in functions.items():
+            blocks = len(cfg.blocks)
+            insts = sum(len(b.instructions) for b in cfg.blocks)
+            total_blocks += blocks
+            total_insts += insts
+
+            for block in cfg.blocks:
+                for inst in block.instructions:
+                    inst_type = inst.type.value
+                    inst_counts[inst_type] = inst_counts.get(inst_type, 0) + 1
+
+            lines.append(f"\n  Function: {name}")
+            lines.append(f"    Basic blocks: {blocks}")
+            lines.append(f"    Instructions: {insts}")
+
+        lines.append(f"\n  TOTAL:")
+        lines.append(f"    Basic blocks: {total_blocks}")
+        lines.append(f"    Instructions: {total_insts}")
+
+        lines.append(f"\n  Instruction counts:")
+        for inst_type, count in sorted(inst_counts.items()):
+            lines.append(f"    {inst_type}: {count}")
+
+        return "\n".join(lines)
     @staticmethod
     def print_text(node: ASTNode, indent: int = 0, show_types: bool = True) -> str:
         if node is None:
@@ -555,7 +692,146 @@ def run_check(input_file: Path, output_file: Optional[Path],
         print(f"Error: {e}")
         return 1
 
+def _ir_to_text(functions: dict) -> str:
+    lines = []
+    for name, cfg in functions.items():
+        lines.append(f"function {name}:")
+        for block in cfg.blocks:
+            lines.append(f"  {block.name}:")
+            for inst in block.instructions:
+                lines.append(f"    {inst}")
+        lines.append("")
+    return "\n".join(lines)
 
+
+def _ir_to_dot(functions: dict) -> str:
+    lines = []
+    for name, cfg in functions.items():
+        lines.append(f"// Function: {name}")
+        lines.append(cfg.get_dot())
+    return "\n".join(lines)
+
+
+def _ir_to_json(functions: dict) -> str:
+    import json
+    result = {}
+    for name, cfg in functions.items():
+        blocks = []
+        for block in cfg.blocks:
+            blocks.append({
+                "name": block.name,
+                "instructions": [str(inst) for inst in block.instructions],
+                "predecessors": [b.name for b in block.predecessors],
+                "successors": [b.name for b in block.successors]
+            })
+        result[name] = {"blocks": blocks}
+    return json.dumps(result, indent=2)
+
+
+def _ir_get_stats(functions: dict) -> str:
+    lines = ["\n=== IR Statistics ==="]
+    total_blocks = 0
+    total_insts = 0
+    inst_counts = {}
+
+    for name, cfg in functions.items():
+        blocks = len(cfg.blocks)
+        insts = sum(len(b.instructions) for b in cfg.blocks)
+        total_blocks += blocks
+        total_insts += insts
+
+        for block in cfg.blocks:
+            for inst in block.instructions:
+                inst_type = inst.type.value
+                inst_counts[inst_type] = inst_counts.get(inst_type, 0) + 1
+
+        lines.append(f"\n  Function: {name}")
+        lines.append(f"    Basic blocks: {blocks}")
+        lines.append(f"    Instructions: {insts}")
+
+    lines.append(f"\n  TOTAL:")
+    lines.append(f"    Basic blocks: {total_blocks}")
+    lines.append(f"    Instructions: {total_insts}")
+
+    lines.append(f"\n  Instruction counts:")
+    for inst_type, count in sorted(inst_counts.items()):
+        lines.append(f"    {inst_type}: {count}")
+
+    return "\n".join(lines)
+
+
+def run_ir_generation(input_file: Path, output_file: Optional[Path],
+                      format: str, optimize: bool, stats: bool, verbose: bool) -> int:
+    try:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            source = f.read()
+
+        error_handler = ErrorHandler()
+        scanner = Scanner(source, error_handler)
+        tokens = scanner.tokenize_all()
+
+        if error_handler.has_errors():
+            print("\n=== Lexical Errors ===")
+            error_handler.print_all()
+            return 1
+
+        if verbose:
+            print(f"Tokenized {len(tokens)} tokens")
+
+        parser = Parser(tokens, error_handler)
+        ast = parser.parse()
+
+        if error_handler.has_errors():
+            print("\n=== Syntax Errors ===")
+            error_handler.print_all()
+            return 1
+
+        if verbose:
+            print("\n=== Parsing completed, starting semantic analysis ===")
+
+        from semantic.analyzer import SemanticAnalyzer
+        analyzer = SemanticAnalyzer()
+        analyzer.analyze(ast)
+
+        if analyzer.get_errors().has_errors():
+            print("\n=== Semantic Errors ===")
+            analyzer.get_errors().print_all()
+            return 1
+
+        if verbose:
+            print("\n=== Semantic analysis completed, generating IR ===")
+
+        from ir.ir_generator import IRGenerator
+        ir_gen = IRGenerator(analyzer.get_symbol_table())
+        functions = ir_gen.generate(ast)
+
+        if format == "text":
+            output = _ir_to_text(functions)
+        elif format == "dot":
+            output = _ir_to_dot(functions)
+        elif format == "json":
+            output = _ir_to_json(functions)
+        else:
+            print(f"Unknown format: {format}")
+            return 1
+
+        if stats:
+            print(_ir_get_stats(functions))
+
+        if output_file:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(output)
+            print(f"IR saved to {output_file}")
+        else:
+            print(output)
+
+        return 0
+
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 def main():
     parser = argparse.ArgumentParser(
         description='MiniCompiler - Lexical, Syntax and Semantic Analyzer',
@@ -578,7 +854,12 @@ Examples:
   compiler check --input examples/hello.src --dump-symbols
   compiler check --input examples/hello.src --show-types
   compiler check --input examples/hello.src --verbose
-
+  
+  # IR generation (Sprint 4)
+  compiler ir --input examples/factorial.src
+  compiler ir --input examples/factorial.src --format dot --output cfg.dot
+  compiler ir --input examples/factorial.src --stats
+  compiler ir --input examples/factorial.src --optimize
   # Visualize AST with Graphviz
   compiler parse --input examples/factorial.src --format dot --output ast.dot
   dot -Tpng ast.dot -o ast.png
@@ -587,10 +868,20 @@ Examples:
 
     parser.add_argument(
         'command',
-        choices=['lex', 'parse', 'check'],
-        help='Command to execute: lex (tokenize), parse (build AST), check (semantic analysis)'
+        choices=['lex', 'parse', 'check', 'ir'],
+        help='Command to execute: lex (tokenize), parse (build AST), check (semantic analysis), ir (generate IR)'
+    )
+    parser.add_argument(
+        '--optimize', '-O',
+        action='store_true',
+        help='Apply optimizations to IR (for ir command)'
     )
 
+    parser.add_argument(
+        '--stats',
+        action='store_true',
+        help='Show IR statistics (for ir command)'
+    )
     parser.add_argument(
         '--input', '-i',
         type=str,
@@ -642,9 +933,10 @@ Examples:
         return run_lexer(input_path, output_path, args.verbose)
     elif args.command == 'parse':
         return run_parser(input_path, output_path, args.format, args.verbose)
-    else:
+    elif args.command == 'check':
         return run_check(input_path, output_path, args.show_types, args.dump_symbols, args.verbose)
-
+    else:  # ir
+        return run_ir_generation(input_path, output_path, args.format, args.optimize, args.stats, args.verbose)
 
 if __name__ == '__main__':
     sys.exit(main())
