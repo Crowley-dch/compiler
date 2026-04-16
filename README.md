@@ -112,6 +112,19 @@ compiler parse --input examples/hello.src --format json
 # Подробный вывод с отладкой
 compiler parse --input examples/hello.src --verbose
 ``` 
+
+## Семантический анализ 
+```bash
+# Семантическая проверка программы
+compiler check --input examples/hello.src
+
+# Вывод таблицы символов
+compiler check --input examples/hello.src --dump-symbols
+
+# Вывод AST с типами
+compiler check --input examples/hello.src --show-types
+```
+
 ## Тестирование 
 
 ```bash

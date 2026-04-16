@@ -2,7 +2,10 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Any
 from enum import Enum
+from typing import Optional, List, Any, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from src.semantic.type_system import Type
 
 class ASTNode(ABC):
 
@@ -35,7 +38,9 @@ class TypeNode(ASTNode):
 
 
 class ExpressionNode(ASTNode, ABC):
-    pass
+    def __init__(self, line: int = 0, column: int = 0):
+        super().__init__(line, column)
+        self.type: 'Type' = None
 
 
 class LiteralExprNode(ExpressionNode):

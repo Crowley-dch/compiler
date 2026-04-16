@@ -25,7 +25,7 @@ from semantic.analyzer import SemanticAnalyzer
 class ASTPrinter:
 
     @staticmethod
-    def print_text(node: ASTNode, indent: int = 0) -> str:
+    def print_text(node: ASTNode, indent: int = 0, show_types: bool = True) -> str:
         if node is None:
             return ""
 
@@ -37,68 +37,79 @@ class ASTPrinter:
         if node_type == 'ProgramNode':
             result.append(f"Program [line {node.line}]:")
             for decl in node.declarations:
-                result.append(ASTPrinter.print_text(decl, indent + 1))
+                result.append(ASTPrinter.print_text(decl, indent + 1, show_types))
 
         elif node_type == 'FunctionDeclNode':
             params = ", ".join(str(p) for p in node.parameters)
             result.append(f"{indent_str}FunctionDecl: {node.name}({params}) -> {node.return_type} [line {node.line}]:")
-            result.append(ASTPrinter.print_text(node.body, indent + 1))
+            result.append(ASTPrinter.print_text(node.body, indent + 1, show_types))
 
         elif node_type == 'StructDeclNode':
             result.append(f"{indent_str}StructDecl: {node.name} [line {node.line}]:")
             for field in node.fields:
-                result.append(ASTPrinter.print_text(field, indent + 1))
+                result.append(ASTPrinter.print_text(field, indent + 1, show_types))
 
         elif node_type == 'BlockStmtNode':
             result.append(f"{indent_str}Block [line {node.line}]:")
             for stmt in node.statements:
-                result.append(ASTPrinter.print_text(stmt, indent + 1))
+                result.append(ASTPrinter.print_text(stmt, indent + 1, show_types))
 
         elif node_type == 'IfStmtNode':
             result.append(f"{indent_str}IfStmt [line {node.line}]:")
             result.append(f"{indent_str}  Condition:")
-            result.append(ASTPrinter.print_text(node.condition, indent + 2))
+            result.append(ASTPrinter.print_text(node.condition, indent + 2, show_types))
             result.append(f"{indent_str}  Then:")
-            result.append(ASTPrinter.print_text(node.then_branch, indent + 2))
+            result.append(ASTPrinter.print_text(node.then_branch, indent + 2, show_types))
             if node.else_branch:
                 result.append(f"{indent_str}  Else:")
-                result.append(ASTPrinter.print_text(node.else_branch, indent + 2))
+                result.append(ASTPrinter.print_text(node.else_branch, indent + 2, show_types))
 
         elif node_type == 'WhileStmtNode':
             result.append(f"{indent_str}WhileStmt [line {node.line}]:")
             result.append(f"{indent_str}  Condition:")
-            result.append(ASTPrinter.print_text(node.condition, indent + 2))
+            result.append(ASTPrinter.print_text(node.condition, indent + 2, show_types))
             result.append(f"{indent_str}  Body:")
-            result.append(ASTPrinter.print_text(node.body, indent + 2))
+            result.append(ASTPrinter.print_text(node.body, indent + 2, show_types))
 
         elif node_type == 'ForStmtNode':
             result.append(f"{indent_str}ForStmt [line {node.line}]:")
             if node.init:
                 result.append(f"{indent_str}  Init:")
-                result.append(ASTPrinter.print_text(node.init, indent + 2))
+                result.append(ASTPrinter.print_text(node.init, indent + 2, show_types))
             if node.condition:
                 result.append(f"{indent_str}  Condition:")
-                result.append(ASTPrinter.print_text(node.condition, indent + 2))
+                result.append(ASTPrinter.print_text(node.condition, indent + 2, show_types))
             if node.update:
                 result.append(f"{indent_str}  Update:")
-                result.append(ASTPrinter.print_text(node.update, indent + 2))
+                result.append(ASTPrinter.print_text(node.update, indent + 2, show_types))
             result.append(f"{indent_str}  Body:")
-            result.append(ASTPrinter.print_text(node.body, indent + 2))
+            result.append(ASTPrinter.print_text(node.body, indent + 2, show_types))
 
         elif node_type == 'ReturnStmtNode':
             if node.value:
-                result.append(f"{indent_str}Return: {ASTPrinter._expr_to_str(node.value)} [line {node.line}]")
+                expr_str = ASTPrinter._expr_to_str(node.value)
+                if show_types and hasattr(node.value, 'type') and node.value.type:
+                    result.append(f"{indent_str}Return: {expr_str} [type: {node.value.type}] [line {node.line}]")
+                else:
+                    result.append(f"{indent_str}Return: {expr_str} [line {node.line}]")
             else:
                 result.append(f"{indent_str}Return [line {node.line}]")
 
         elif node_type == 'ExprStmtNode':
             expr_str = ASTPrinter._expr_to_str(node.expression)
-            result.append(f"{indent_str}{expr_str};")
+            if show_types and hasattr(node.expression, 'type') and node.expression.type:
+                result.append(f"{indent_str}{expr_str}; [type: {node.expression.type}]")
+            else:
+                result.append(f"{indent_str}{expr_str};")
 
         elif node_type == 'VarDeclStmtNode':
             if node.initializer:
                 init_str = ASTPrinter._expr_to_str(node.initializer)
-                result.append(f"{indent_str}VarDecl: {node.var_type} {node.name} = {init_str} [line {node.line}]")
+                if show_types and hasattr(node.initializer, 'type') and node.initializer.type:
+                    result.append(
+                        f"{indent_str}VarDecl: {node.var_type} {node.name} = {init_str} [type: {node.initializer.type}] [line {node.line}]")
+                else:
+                    result.append(f"{indent_str}VarDecl: {node.var_type} {node.name} = {init_str} [line {node.line}]")
             else:
                 result.append(f"{indent_str}VarDecl: {node.var_type} {node.name} [line {node.line}]")
 
@@ -108,30 +119,49 @@ class ASTPrinter:
         elif node_type == 'BinaryExprNode':
             left = ASTPrinter._expr_to_str(node.left)
             right = ASTPrinter._expr_to_str(node.right)
-            result.append(f"{indent_str}{left} {node.operator} {right}")
+            if show_types and hasattr(node, 'type') and node.type:
+                result.append(f"{indent_str}{left} {node.operator} {right} [type: {node.type}]")
+            else:
+                result.append(f"{indent_str}{left} {node.operator} {right}")
 
         elif node_type == 'UnaryExprNode':
             operand = ASTPrinter._expr_to_str(node.operand)
-            result.append(f"{indent_str}{node.operator}{operand}")
+            if show_types and hasattr(node, 'type') and node.type:
+                result.append(f"{indent_str}{node.operator}{operand} [type: {node.type}]")
+            else:
+                result.append(f"{indent_str}{node.operator}{operand}")
 
         elif node_type == 'LiteralExprNode':
             if isinstance(node.value, str):
-                result.append(f'{indent_str}"{node.value}"')
+                value_str = f'"{node.value}"'
             else:
-                result.append(f"{indent_str}{node.value}")
+                value_str = str(node.value)
+            if show_types and hasattr(node, 'type') and node.type:
+                result.append(f"{indent_str}{value_str} [type: {node.type}]")
+            else:
+                result.append(f"{indent_str}{value_str}")
 
         elif node_type == 'IdentifierExprNode':
-            result.append(f"{indent_str}{node.name}")
+            if show_types and hasattr(node, 'type') and node.type:
+                result.append(f"{indent_str}{node.name} [type: {node.type}]")
+            else:
+                result.append(f"{indent_str}{node.name}")
 
         elif node_type == 'CallExprNode':
             args = ", ".join(ASTPrinter._expr_to_str(arg) for arg in node.arguments)
             callee = ASTPrinter._expr_to_str(node.callee)
-            result.append(f"{indent_str}{callee}({args})")
+            if show_types and hasattr(node, 'type') and node.type:
+                result.append(f"{indent_str}{callee}({args}) [type: {node.type}]")
+            else:
+                result.append(f"{indent_str}{callee}({args})")
 
         elif node_type == 'AssignmentExprNode':
             target = ASTPrinter._expr_to_str(node.target)
             value = ASTPrinter._expr_to_str(node.value)
-            result.append(f"{indent_str}{target} {node.operator} {value}")
+            if show_types and hasattr(node, 'type') and node.type:
+                result.append(f"{indent_str}{target} {node.operator} {value} [type: {node.type}]")
+            else:
+                result.append(f"{indent_str}{target} {node.operator} {value}")
 
         elif node_type == 'TypeNode':
             result.append(f"{indent_str}{node.name}")
@@ -146,6 +176,36 @@ class ASTPrinter:
 
         return "\n".join(result)
 
+    @staticmethod
+    def _expr_to_str(expr) -> str:
+        if expr is None:
+            return ""
+
+        expr_type = expr.__class__.__name__
+
+        if expr_type == 'LiteralExprNode':
+            if isinstance(expr.value, str):
+                return f'"{expr.value}"'
+            return str(expr.value)
+        elif expr_type == 'IdentifierExprNode':
+            return expr.name
+        elif expr_type == 'BinaryExprNode':
+            left = ASTPrinter._expr_to_str(expr.left)
+            right = ASTPrinter._expr_to_str(expr.right)
+            return f"({left} {expr.operator} {right})"
+        elif expr_type == 'UnaryExprNode':
+            operand = ASTPrinter._expr_to_str(expr.operand)
+            return f"({expr.operator}{operand})"
+        elif expr_type == 'CallExprNode':
+            args = ", ".join(ASTPrinter._expr_to_str(arg) for arg in expr.arguments)
+            callee = ASTPrinter._expr_to_str(expr.callee)
+            return f"{callee}({args})"
+        elif expr_type == 'AssignmentExprNode':
+            target = ASTPrinter._expr_to_str(expr.target)
+            value = ASTPrinter._expr_to_str(expr.value)
+            return f"{target} {expr.operator} {value}"
+        else:
+            return str(expr)
     @staticmethod
     def _expr_to_str(expr) -> str:
         if expr is None:

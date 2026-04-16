@@ -398,6 +398,7 @@ class SemanticAnalyzer:
                 suggestion=f"declare '{node.name}' before using it"
             )
             return None
+        node.type = symbol.type
         return symbol.type
 
     def _visit_binary(self, node: BinaryExprNode) -> Optional[Type]:
@@ -419,7 +420,25 @@ class SemanticAnalyzer:
             )
             return None
 
+        # Сохраняем тип в узле
+        node.type = result_type
         return result_type
+
+    def _visit_literal(self, node: LiteralExprNode) -> Type:
+        if isinstance(node.value, bool):
+            node.type = BOOL_TYPE
+            return BOOL_TYPE
+        elif isinstance(node.value, int):
+            node.type = INT_TYPE
+            return INT_TYPE
+        elif isinstance(node.value, float):
+            node.type = FLOAT_TYPE
+            return FLOAT_TYPE
+        elif isinstance(node.value, str):
+            node.type = STRING_TYPE
+            return STRING_TYPE
+        node.type = INT_TYPE
+        return INT_TYPE
 
     def _visit_unary(self, node: UnaryExprNode) -> Optional[Type]:
         operand_type = self._visit_expression(node.operand)
@@ -439,6 +458,7 @@ class SemanticAnalyzer:
             )
             return None
 
+        node.type = result_type
         return result_type
 
     def _visit_call(self, node: CallExprNode) -> Optional[Type]:
@@ -472,6 +492,7 @@ class SemanticAnalyzer:
                 found=f"{actual_count} arguments",
                 suggestion=f"function {symbol.name} expects {expected_count} arguments"
             )
+            node.type = symbol.type
             return symbol.type
 
         for i, (arg, expected_type) in enumerate(zip(node.arguments, symbol.param_types)):
@@ -486,6 +507,7 @@ class SemanticAnalyzer:
                     suggestion=f"pass value of type {expected_type}"
                 )
 
+        node.type = symbol.type
         return symbol.type
 
     def _visit_assignment(self, node: AssignmentExprNode) -> Optional[Type]:
@@ -519,6 +541,7 @@ class SemanticAnalyzer:
         if symbol:
             symbol.is_initialized = True
 
+        node.type = target_type
         return target_type
 
     def _get_type_from_node(self, node: TypeNode) -> Type:
