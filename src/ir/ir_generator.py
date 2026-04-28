@@ -204,9 +204,13 @@ class IRGenerator:
                 dest = self.var_to_temp[node.target.name]
                 self.current_block.add_instruction(move(dest, value, str(node)))
                 return value
+            else:
+                temp = self._new_temp()
+                self.var_to_temp[node.target.name] = temp
+                self.current_block.add_instruction(move(temp, value, str(node)))
+                return value
 
         return value
-
     def _generate_if(self, node: IfStmtNode) -> None:
         cond = self._generate_expression(node.condition)
 

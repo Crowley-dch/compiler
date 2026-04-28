@@ -26,6 +26,7 @@ from parser import (
 )
 from semantic.analyzer import SemanticAnalyzer
 
+from codegen.x86_generator import X86Generator
 
 class ASTPrinter:
     def run_ir_generation(input_file: Path, output_file: Optional[Path],
@@ -633,6 +634,75 @@ def run_parser(input_file: Path, output_file: Optional[Path],
         print(f"Error: {e}")
         return 1
 
+def run_compile(input_file: Path, output_file: Optional[Path],
+                optimize: bool, verbose: bool) -> int:
+    try:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            source = f.read()
+
+        error_handler = ErrorHandler()
+        scanner = Scanner(source, error_handler)
+        tokens = scanner.tokenize_all()
+
+        if error_handler.has_errors():
+            print("\n=== Lexical Errors ===")
+            error_handler.print_all()
+            return 1
+
+        if verbose:
+            print(f"Tokenized {len(tokens)} tokens")
+
+        parser = Parser(tokens, error_handler)
+        ast = parser.parse()
+
+        if error_handler.has_errors():
+            print("\n=== Syntax Errors ===")
+            error_handler.print_all()
+            return 1
+
+        if verbose:
+            print("\n=== Parsing completed, starting semantic analysis ===")
+
+        from semantic.analyzer import SemanticAnalyzer
+        analyzer = SemanticAnalyzer()
+        analyzer.analyze(ast)
+
+        if analyzer.get_errors().has_errors():
+            print("\n=== Semantic Errors ===")
+            analyzer.get_errors().print_all()
+            return 1
+
+        if verbose:
+            print("\n=== Semantic analysis completed, generating IR ===")
+
+        from ir.ir_generator import IRGenerator
+        ir_gen = IRGenerator(analyzer.get_symbol_table())
+        functions = ir_gen.generate(ast)
+
+        if verbose:
+            print("\n=== IR generated, generating x86-64 assembly ===")
+
+        x86_gen = X86Generator()
+        assembly = x86_gen.generate(functions)
+
+        if output_file:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(assembly)
+            print(f"Assembly saved to {output_file}")
+        else:
+            base = input_file.stem
+            asm_file = Path(f"{base}.asm")
+            with open(asm_file, 'w', encoding='utf-8') as f:
+                f.write(assembly)
+            print(f"Assembly saved to {asm_file}")
+
+        return 0
+
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 def run_check(input_file: Path, output_file: Optional[Path],
               show_types: bool, dump_symbols: bool, verbose: bool) -> int:
@@ -863,12 +933,19 @@ Examples:
   # Visualize AST with Graphviz
   compiler parse --input examples/factorial.src --format dot --output ast.dot
   dot -Tpng ast.dot -o ast.png
+  
+  # Assembly generation (Sprint 5)
+  compiler compile --input examples/arithmetic.src --output add.asm
+  compiler compile --input examples/factorial.src --verbose
+  nasm -f elf64 add.asm -o add.o
+  ld -o add_program add.o src/runtime/runtime.o
+  ./add_program
         """
     )
 
     parser.add_argument(
         'command',
-        choices=['lex', 'parse', 'check', 'ir'],
+        choices=['lex', 'parse', 'check', 'ir', 'compile'],
         help='Command to execute: lex (tokenize), parse (build AST), check (semantic analysis), ir (generate IR)'
     )
     parser.add_argument(
@@ -935,8 +1012,9 @@ Examples:
         return run_parser(input_path, output_path, args.format, args.verbose)
     elif args.command == 'check':
         return run_check(input_path, output_path, args.show_types, args.dump_symbols, args.verbose)
-    else:  # ir
+    elif args.command == 'ir':
         return run_ir_generation(input_path, output_path, args.format, args.optimize, args.stats, args.verbose)
-
+    else:
+        return run_compile(input_path, output_path, args.optimize, args.verbose)
 if __name__ == '__main__':
     sys.exit(main())

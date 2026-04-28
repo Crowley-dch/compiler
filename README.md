@@ -19,6 +19,21 @@ compiler
 │ │ ├── ast.py # Классы AST
 │ │ ├── grammar.txt # Формальная грамматика (краткая)
 │ │ └── parser.py # Парсер методом рекурсивного спуска
+│ ├── semantic/ # Семантический анализатор (Спринт 3)
+│ │ ├── analyzer.py # Семантический анализатор
+│ │ ├── symbol_table.py # Таблица символов
+│ │ ├── type_system.py # Система типов
+│ │ └── errors.py # Семантические ошибки
+│ ├── ir/ # Генерация IR (Спринт 4)
+│ │ ├── ir_generator.py # Генератор IR
+│ │ ├── ir_instructions.py # Инструкции IR
+│ │ ├── basic_block.py # Базовые блоки
+│ │ └── control_flow.py # Control Flow Graph
+│ ├── codegen/ # Генерация кода (Спринт 5)
+│ │ ├── x86_generator.py # Генератор x86-64
+│ │ └── stack_frame.py # Управление стеком
+│ ├── runtime/ # Рантайм библиотека
+│ │ └── runtime.asm
 │ ├── utils/ # Вспомогательные модули
 │ │ └── error_handler.py # Обработка ошибок
 │ └── main.py # Точка входа (CLI)
@@ -124,6 +139,32 @@ compiler check --input examples/hello.src --dump-symbols
 # Вывод AST с типами
 compiler check --input examples/hello.src --show-types
 ```
+## Генерация IR (промежуточного кода)
+
+```bash
+# Генерация IR в текстовом формате
+compiler ir --input examples/arithmetic.src
+
+# Сохранить IR в файл
+compiler ir --input examples/factorial.src --output factorial.ir
+
+# Визуализация Control Flow Graph
+compiler ir --input examples/if.src --format dot --output cfg.dot
+dot -Tpng cfg.dot -o cfg.png
+
+# Статистика IR
+compiler ir --input examples/factorial.src --stats
+```
+
+## Генерация ассемблерного кода
+```bash
+compiler compile --input examples/simple_return.src --output output.asm
+
+nasm -f win64 output.asm -o output.obj
+gcc -m64 -mconsole -no-pie -o output.exe output.obj
+output.exe
+echo %errorlevel%
+```
 
 ## Тестирование 
 
@@ -132,10 +173,22 @@ compiler check --input examples/hello.src --show-types
 # Запустить  тесты лексера
 python tests/lexer/test_runner.py
 
+# Запустить тесты лексера
+python tests/lexer/test_runner.py
+
 # Запустить тесты парсера
 python tests/parser/test_runner.py
 
-# Запуск через pytest
+# Запустить тесты семантического анализатора
+python tests/semantic/test_runner.py
+
+# Запустить тесты генерации IR
+python tests/ir/test_runner.py
+
+# Запустить тесты генерации кода
+python tests/codegen/test_runner.py
+
+# Запуск всех тестов через pytest
 pytest tests/
 
 ```
